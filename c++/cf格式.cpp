@@ -9,7 +9,7 @@ typedef array<ll, 2> PII; // vector<PII> a(n+1);
 const ll inf = 2e18 + 10;
 const int mod = 998244353;
 const int MAX = 2e5 + 10;
-bool multi = 0;//∂‡◊È ‰»Î
+bool multi = 0;
 
 void Solve() {
 
