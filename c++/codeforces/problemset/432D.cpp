@@ -24,6 +24,7 @@ void Solve() {
         }
         cnt[z[i]] ++ ;
     }
+    
     ll cntt = 0, cntt1 = 1;
     for(ll i = si - 1; i >= 1; i -- ) {
         cntt += cnt[i + 1];
