@@ -6,7 +6,10 @@ def price_above_80(stock):
 with open('info_stocks.txt', 'r') as file: 
     for line in file:
         parts = line.strip().split(', ')
+<<<<<<< HEAD
         #print(parts)
+=======
+>>>>>>> 6c24bb38f5401d795b7c22d12dc8149fb6c2d4ca
         name = parts[0].split(': ')[1].strip("'") #split根据冒号和一个空格将part[0]分割为两部分，strip去除两边的单引号
         shares = int(parts[1].split(': ')[1]) 
         price = float(parts[2].split(': ')[1])
@@ -18,7 +21,11 @@ for item in sorted_list:
     print(f"'name': '{item['name']:5}', 'price': {item['price']:6}, 'prices': {item['prices']}")
 
 print("单价大于80的股票有: ")
+<<<<<<< HEAD
 #filtered_stocks = filter(price_above_80, sorted_list)
 filtered_stocks = filter(lambda stock : stock["price"] > 80, sorted_list)
+=======
+filtered_stocks = filter(price_above_80, sorted_list)
+>>>>>>> 6c24bb38f5401d795b7c22d12dc8149fb6c2d4ca
 for item in sorted_list:
     print(f"'name': '{item['name']:5}', 'price': {item['price']:6}, 'prices': {item['prices']}")

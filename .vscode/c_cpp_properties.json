@@ -4,6 +4,12 @@
           "name": "Win32",
           "includePath": [
           "${workspaceFolder}/**"
+<<<<<<< HEAD
+=======
+          //"D:/MinGW/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include",
+          //"D:/MinGW/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed",
+          //"D:/MinGW/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"
+>>>>>>> 6c24bb38f5401d795b7c22d12dc8149fb6c2d4ca
         ],
           "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
           "windowsSdkVersion": "10.0.17763.0",

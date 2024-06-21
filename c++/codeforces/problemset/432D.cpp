@@ -24,7 +24,10 @@ void Solve() {
         }
         cnt[z[i]] ++ ;
     }
+<<<<<<< HEAD
     
+=======
+>>>>>>> 6c24bb38f5401d795b7c22d12dc8149fb6c2d4ca
     ll cntt = 0, cntt1 = 1;
     for(ll i = si - 1; i >= 1; i -- ) {
         cntt += cnt[i + 1];
