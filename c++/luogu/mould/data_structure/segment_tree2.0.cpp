@@ -1,4 +1,4 @@
-//Ïß¶ÎÊ÷
+//ï¿½ß¶ï¿½ï¿½ï¿½
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -7,7 +7,7 @@ typedef double db;
 const int MAX = 5e5 + 10;
 ll n,m,l,x,y,k;
 ll a[MAX];
-ll ans;//å•ç‚¹æŸ¥è?¢çš„ç­”æ??
+ll ans;
 struct segment_tree {
 
     struct Tree {
