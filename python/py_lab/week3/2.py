@@ -7,7 +7,6 @@ for i in range(3, 2001, 2):
     else:
         prime_list.append(i)
 
-
 file_path = 'D://vscode//python//py_lab//week3//prime.txt'
 with open(file_path, 'w') as file:
     for i in range(1000, 2001):
