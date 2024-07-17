@@ -12,7 +12,19 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll n; cin >> n;
+    vector<ll> dp(n + 1);
+    vector<ll> a(n + 1);
+    for(ll i = 1; i <= n; i ++ ) {
+        cin >> a[i];
+    }
+    vector<vector<ll>> e(n + 1);
+    for(ll i = 1; i < n; i ++ ) {
+        ll x, y; cin >> x >> y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    
 }
 
 

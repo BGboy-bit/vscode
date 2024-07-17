@@ -9,10 +9,20 @@ typedef array<ll, 2> PII; // vector<PII> a(n+1);
 const ll inf = 2e18 + 10;
 const int mod = 998244353;
 const int MAX = 2e5 + 10;
-bool multi = 1;
+bool multi = 0;
 
 void Solve() {
-
+    ll n; cin >> n;
+    ll cnt = 0, cnt1 = 0;
+    for(ll i = 1; i <= n; i ++ ) {
+        ll y; cin >> y;
+        if(y % 2 == 1) cnt ++ ;
+        else cnt1 ++ ;
+    }
+    if(cnt < cnt1) 
+        cout << n - cnt * 2 << "\n";
+    else
+        cout << n - cnt1 * 2 - (cnt - cnt1) / 2 * 2 << "\n";
 }
 
 

@@ -12,7 +12,12 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll n, a, b; cin >> n >> a >> b;
+    ll x = min(max(b + 1 - a, 0ll), n);
+    ll summ = 0;
+    summ += x * (b + 1) - (1 + x) * x / 2;
+    summ += a * (n - x);
+    cout << summ << "\n";
 }
 
 

@@ -1,5 +1,3 @@
-l1 = [1, 2]
-y1 = (1, 2)
-l1[0] = 2 
-y1[0] = 2
-print(l1, y1)
+import numpy as np
+a = np.arange(9).reshape(3,3)
+print(a)

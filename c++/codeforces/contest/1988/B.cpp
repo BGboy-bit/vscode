@@ -12,7 +12,22 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll n; cin >> n;
+    string s; cin >> s;
+    string a;
+    for(ll i = 0; i < n; i ++ ) {
+        if(s[i] == '1') a += '1';
+        else {
+            if(a.empty() || a.back() == '1') a += '0';
+        } 
+    }
+    ll cnt = 0;
+    for(ll i = 0; i < a.size(); i ++ ) {
+        if(a[i] == '1') cnt ++ ;
+        else cnt -- ; 
+    }
+    if(cnt <= 0) cout << "No" << "\n";
+    else cout << "Yes" << "\n";
 }
 
 

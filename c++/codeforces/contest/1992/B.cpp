@@ -12,7 +12,13 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll n, k; cin >> n >> k;
+    vector<ll> a(k + 1);
+    ll maxx = 0;
+    for(ll i = 1; i <= k; i ++ ) {
+        cin >> a[i]; maxx = max(maxx, a[i]);
+    } 
+    cout << 2 * (n - maxx) - (k - 1) << "\n"; 
 }
 
 

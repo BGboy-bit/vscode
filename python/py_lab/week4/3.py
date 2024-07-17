@@ -19,6 +19,7 @@ class Listinfo:
             self.lst.extend(ls)
         else:
             raise ValueError("Argument must be a list")
+        
     def del_lastone(self):
         if self.lst:
             return self.lst.pop()

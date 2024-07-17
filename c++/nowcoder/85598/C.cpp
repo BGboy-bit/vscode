@@ -12,7 +12,11 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll a, x; cin >> a >> x;
+    if(x == 1) cout << a * x % mod << "\n";
+    else {
+        cout << (a * a % mod) * (x * (x - 1) / 2 % mod) % mod << "\n";
+    }
 }
 
 

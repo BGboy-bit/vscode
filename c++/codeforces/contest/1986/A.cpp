@@ -12,7 +12,10 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll a, b, c; cin >> a >> b >> c;
+    ll x = max(a, max(b, c));
+    ll y = min(a, min(b, c));
+    cout<< x - y << "\n";
 }
 
 

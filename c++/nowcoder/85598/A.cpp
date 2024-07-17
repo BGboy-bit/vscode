@@ -9,10 +9,17 @@ typedef array<ll, 2> PII; // vector<PII> a(n+1);
 const ll inf = 2e18 + 10;
 const int mod = 998244353;
 const int MAX = 2e5 + 10;
-bool multi = 1;
+bool multi = 0;
 
 void Solve() {
-
+    ll n, x; cin >> n >> x;
+    bool ff = 0;
+    for(ll i = 1; i <= n; i ++ ) {
+        ll y; cin >> y;
+        if(x == y) ff = 1;
+    }
+    if(ff) cout << "YES" << "\n";
+    else cout << "NO" << "\n";
 }
 
 

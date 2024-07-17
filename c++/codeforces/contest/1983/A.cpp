@@ -12,7 +12,8 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    ll n; cin >> n;
+    for(ll i = 1; i <= n; i ++ ) cout << i << " \n"[i == n];
 }
 
 

@@ -12,7 +12,7 @@ const int MAX = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-
+    
 }
 
 
