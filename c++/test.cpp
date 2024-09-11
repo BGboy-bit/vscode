@@ -1,53 +1,74 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#ifndef ONLINE_JUDGE
+#endif
+
+#define int long long
+#define new _MY_NEW_
+#define lg(ITEM) static_cast<int>(std::log2(ITEM))
+
 using namespace std;
-typedef __int128 i128;
-typedef long long ll;
-typedef double db;
+using ll = long long;
+using PII = std::pair<int, int>;
 
-ll divMod(string str, ll num)
-{
-	int s = 0;
-	for(auto i : str)
-		s = (s * 10 + i -'0') % num;
-	return s;
+constexpr long long INF = 2E18 + 10;
+constexpr int N = 2E6 + 10;
+
+void SINGLE_TEST() {
+    int n;
+    cin >> n;
+    multiset<int, greater<>> se1, se2;
+    for (int i = 1; i <= n; i++) {
+        int x;
+        cin >> x;
+        se1.emplace(x);
+    }
+    for (int i = 1; i <= n; i++) {
+        int x;
+        cin >> x;
+        se2.emplace(x);
+    }
+    bool t = 1;
+    int ans1 = 0, ans2 = 0;
+    while (1) {
+        int t1 = *se1.begin();
+        int t2 = *se2.begin();
+        if (min(t1, t2) == 1) {
+            break;
+        }
+        if (t) {
+            se1.emplace(1);
+            se2.erase(se2.begin());
+            se2.emplace(1);
+            ans1 += 3;
+        } else {
+            se2.emplace(1);
+            se1.erase(se1.begin());
+            se1.emplace(1);
+            ans2 += 3;
+        }
+        t ^= 1;
+    }
+    if (t) {
+        ans1 += se1.size() + se2.size();
+    } else {
+        ans2 += se1.size() + se2.size();
+    }
+    if (ans1 > ans2) {
+        cout << "shuishui\n";
+    } else if (ans1 < ans2) {
+        cout << "sha7dow\n";
+    } else {
+        cout << "Tie\n";
+    }
 }
 
-const db PI = acos(-1);
-typedef array<ll, 2> PII; // vector<PII> a(n+1);
-const ll inf = 2e18 + 10;
-const int mod = 998244353;
-const int MAX = 2e5 + 10;
-bool multi = 0;
-
-void Solve() {
-    string a; cin >> a;
-    ll b; cin >> b;
-    ll ans = 0;
-    vector<ll> c;
-    c.push_back(1); c.push_back(b);
-    for(ll i = 2; i <= __lg(b); i ++ ) {
-        if(b % i == 0) {
-            c.push_back(i);
-            c.push_back(b / i);
-        }
-    }
-    sort(c.begin(), c.end());
-    reverse(c.begin(), c.end());
-    for(auto i : c) {
-        if(divMod(a, i) == 0) {
-            cout << i << "\n";
-            return ;
-        }
-    }
-}
- 
 signed main() {
     ios::sync_with_stdio(false);
-    cin.tie(0); cout.tie(0);
-    ll T = 1;
-    if(multi) cin >> T;
-    while(T--) {
-        Solve();
+    cin.tie(nullptr), cout.tie(nullptr);
+
+    int SAMPLES = 1;
+    cin >> SAMPLES;
+    for (int CUR = 1; CUR <= SAMPLES; CUR++) {
+        SINGLE_TEST();
     }
-    return 0;
 }
