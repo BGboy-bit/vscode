@@ -72,5 +72,6 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "xutility": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }
