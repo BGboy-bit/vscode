@@ -1,94 +1,49 @@
-/**
- *    author:  tourist
- *    created: 09.06.2024 10:58:54
-**/
-#include <bits/stdc++.h>
-
+#include<bits/stdc++.h>
 using namespace std;
+typedef long long ll;
 
-#ifdef LOCAL
-#include "algo/debug.h"
-#else
-#define debug(...) 42
-#endif
-
-template <typename T>
-vector<int> y_function(int n, const T &s) {
-  vector<int> y(n, n);
-  int l = 0, r = 0;
-  for (int i = 1; i < n; i++) {
-    y[i] = (i > r ? 0 : min(r - i + 1, y[i - l]));
-    while (i + y[i] < n && s[y[i]] == s[i + y[i]]) {
-      y[i]++;
+void Solve() {
+    string s; cin >> s;
+    ll sz = s.size();
+    s = "!" + s;
+    vector<ll> pos;
+    for(ll i = 1; i <= sz; i ++ ) {
+        if(s[i] != 'a') pos.push_back(i);
     }
-    if (i + y[i] - 1 > r) {
-      l = i;
-      r = i + y[i] - 1;
+    if(pos.size() == 0) {
+        cout << sz - 1 << "\n"; return ;
     }
-  }
-  return y;
-}
+    ll p = pos.size();
+    ll ans = 0;
+    for(auto res = 1; res <= p; res ++ ) {
+        bool ac = 1;
+        for(ll i = res; i < p; i ++ ) {
+            if(s[pos[i]] != s[pos[i - res]] || i % res != 0 && pos[i] - pos[i - res] != pos[i - 1] - pos[i - res - 1]) {
+                ac = 0; break;
+            } 
+        }
+        if(!ac) continue;
 
-template <typename T>
-vector<int> y_function(const T &s) {
-  return y_function((int) s.size(), s);
+        ll l = pos[0], r = sz - pos[p - 1];
+        ll minn = sz;
+        for (ll i = res; i < p; i += res) {
+            minn = min(minn, pos[i] - pos[i - 1] - 1);
+        }
+        for (ll i = 0; i < l; i ++ ) {
+            ll ss = max(0ll, min(r + 1, minn - i + 1));
+            ans += ss;
+        }
+    }
+    cout << ans << "\n";
 }
 
 int main() {
-  ios::sync_with_stdio(false);
-  cin.tie(0);
-  int tt;
-  cin >> tt;
-  while (tt--) {
-    string s;
-    cin >> s;
-    int n = int(s.size());
-    vector<int> cnt(26);
-    for (int i = 0; i < n; i++) {
-      cnt[int(s[i] - 'a')] += 1;
+    ios::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    ll T; cin >> T;
+    while(T -- ) {
+        Solve();
     }
-    if (cnt[0] == n) {
-      cout << n - 1 << '\n';
-      continue;
-    }
-    vector<int> pos;
-    for (int i = 0; i < n; i++) {
-      if (s[i] != 'a') {
-        pos.push_back(i);
-      }
-    }
-    int sz = int(pos.size());
-    string ss = s.substr(pos[0]);
-    auto y = y_function(ss);
-    int64_t ans = 0;
-    for (int x = 1; x <= sz; x++) {
-      if (sz % x == 0) {
-        int until = pos[x - 1];
-        int len = until - pos[0] + 1;
-        bool ok = true;
-        for (int i = x; i < sz; i += x) {
-          if (y[pos[i] - pos[0]] < len) {
-            ok = false;
-            break;
-          }
-        }
-        if (ok) {
-          int max_l = pos[0];
-          int max_r = n - 1 - pos[sz - 1];
-          int max_sum = n + 1;
-          for (int i = x; i < sz; i += x) {
-            max_sum = min(max_sum, pos[i] - pos[i - 1] - 1);
-          }
-          for (int l = 0; l <= max_l; l++) {
-            int lim = min(max_r, max_sum - l);
-            if (lim >= 0) {
-              ans += lim + 1;
-            }
-          }
-        }
-      }
-    }
-    cout << ans << '\n';
-  }
-  return 0;
+    return 0;
 }
+
