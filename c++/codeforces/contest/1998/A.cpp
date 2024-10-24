@@ -14,9 +14,17 @@ bool multi = 1;
 void Solve() {
     ll x, y, k; cin >> x >> y >> k;
     for(ll i = 1; i < k; i ++ ) {
-        cout << i << " " << i << "\n";
+        if(i % 2 == 0) {
+            cout << x + i - 1 << " " << y + i - 1 << "\n";
+        } else {
+            cout << x - i << " " << y - i << "\n";
+        }
     }
-    cout << k * x - k * (k - 1) / 2 << " " << k * y - k * (k - 1) / 2 << "\n";
+    if(k % 2 == 0) {
+        cout << x + k - 1 << " " << y + k - 1 << "\n";
+    } else {
+        cout << x << " " << y << "\n";
+    }
 }
 
 
