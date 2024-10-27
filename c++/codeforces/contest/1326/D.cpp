@@ -4,7 +4,15 @@ typedef long long ll;
 
 void Solve() {
     string s; cin >> s;
-    ll n = s.size();
+    ll n = s.size(), m = n;
+    ll sum = 0;
+    for(ll i = 0; i < n / 2; i ++ ) {
+        if(s[i] != s[n - i - 1]) break;
+        sum ++ ;
+    }
+    string ans1 = s.substr(0, sum);
+    s = s.substr(sum, n - sum * 2);
+    n = s.size();
     vector<int> d1(n);
     for (int i = 0, l = 0, r = -1; i < n; i++) {
         int k = (i > r) ? 1 : min(d1[l + r - i], r - i + 1);
@@ -29,28 +37,31 @@ void Solve() {
             r = i + k;
         }
     }
-    string ans;
+    string ans2;
+    ll maxx = 0, pos;
     for(ll i = 0; i < n; i ++ ) {
-        if((i - d1[i] + 1 == 0 || i + d1[i] == n) && d1[i] * 2 - 1 > ans.size()) {
-            ans = s.substr(i - d1[i] + 1, d1[i] * 2 - 1);
+        if((i - d1[i] + 1 == 0 || i + d1[i] == n) && maxx < d1[i] * 2 - 1) {
+            maxx = d1[i] * 2 - 1; pos = i;
         }
     }
+    if(maxx > 0) {
+        ans2 = s.substr(pos - maxx / 2, maxx);
+    }
     for(ll i = 0; i < n; i ++ ) {
-        if((i - d2[i] == 0 || i + d2[i] == n) && d2[i] * 2 > ans.size()) {
-            ans = s.substr(i - d2[i], d2[i] * 2);
+        if((i - d2[i] == 0 || i + d2[i] == n) && maxx < d2[i] * 2) {
+            maxx = d2[i] * 2; pos = i;
         }
     }
-    ll sum = 0;
-    for(ll i = 0; i < n; i ++ ) {
-        if(s[i] != s[n - i - 1] || sum * 2 >= n) break;
-        sum ++ ;
+    if(maxx > ans2.size()) {
+        ans2 = s.substr(pos - maxx / 2, maxx);
     }
-    if(sum * 2 + 1 > ans.size() && sum * 2 < n ) {
-        ans = s.substr(0, sum + 1) + s.substr(n - sum, sum);   
-    } else if(sum * 2 > ans.size() && sum * 2 == n) {
-        ans = s.substr(0, sum) + s.substr(n - sum, sum);
+    if(ans1.size() * 2 <= m) {
+        cout << ans1 + ans2;
+        reverse(ans1.begin(), ans1.end());
+        cout << ans1 << "\n";
+    } else {    
+        cout << ans1 << "\n";
     }
-    cout << ans << "\n";
 }
 
 int main() {
