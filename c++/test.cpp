@@ -2,49 +2,46 @@
 using namespace std;
 typedef long long ll;
 
-const string ss = "!narek";
+void Solve() {
+	int n, k;
+	cin >> n >> k;
 
-ll n, m; 
+	string s;
+	cin >> s;
 
-void AC(ll pos, ll &ed, ll &cnt, vector<string> &s) {
-	for(ll i = 1; i <= m; i ++ ) {
-		ll p = -1;
-		for(ll j = 1; j <= 5; j ++ ) {
-			if(ss[j] == s[pos][i]) {
-				p = j; break;
+	auto check = [&](string & s){
+		int cnt = 0;
+		for (int i = 0, cur = 0; i < n; ++i){
+			if (s[i] == s[cur]){
+				cnt ++;
+				continue;
+			}
+			if (cnt < k){
+				return i;
+			}
+			else if (cnt > k){
+				return i - k;
+			}
+			else{
+				cur = i;
+				cnt = 1;
 			}
 		}
-		if(p == -1) continue;
-		if(p == ed) {
-			ed ++ ; cnt ++ ;
-			if(ed == 6) ed = 1;
-		} else {
-			cnt -- ;
-		}
-	}
-}
+		return cnt > k ? n - k : n;
+	};
 
-void Solve() {
-	cin >> n >> m;
-	vector<string> s(n + 1);
-	for(ll i = 1; i <= n; i ++ ) {
-		cin >> s[i]; s[i] = "!" + s[i];
+	int p = check(s);
+	if (p == n){
+		cout << n << '\n';
+		return;
 	}
-	vector<vector<ll>> dp(n + 1, vector<ll>(6, -1e6));
-	dp[0][1] = 0; dp[1][1] = 0;
-	for(ll i = 1; i <= n; i ++ ) {
-		for(ll j = 1; j <= 5; j ++ ) {
-			dp[i][j] = max(dp[i][j], dp[i - 1][j]);
-			ll ed = j, cnt = 0;
-			AC(i, ed, cnt, s);
-			dp[i][ed] = max(dp[i][ed], dp[i - 1][j] + cnt);
-		}
-	}
-	ll ans = 0;
-	for(ll i = 1; i <= 5; i ++ ) {
-		ans = max(ans, dp[n][i] - (i - 1) * 2);
-	}
-	cout << ans << "\n";
+
+	reverse(s.begin(), s.begin() + p);
+	rotate(s.begin(), s.begin() + p, s.end());
+
+	int t = check(s);
+
+	cout << (t == n ? p : -1) << '\n';
 }
 
 int main() {
