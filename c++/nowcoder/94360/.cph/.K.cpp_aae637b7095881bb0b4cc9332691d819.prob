@@ -1,0 +1,1 @@
+{"name":"Local: K","url":"d:\\vscode\\c++\\nowcoder\\94360\\K.cpp","tests":[{"id":1729931156720,"input":"7\n1 3 7\n2 3 7\n3 3 7\n4 3 7\n5 3 7\n6 3 7\n7 3 7","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\vscode\\c++\\nowcoder\\94360\\K.cpp","group":"local","local":true}
