@@ -9,7 +9,8 @@ constexpr int N = 2E6 + 10;
 
 vector<vector<ll>> g(10000);
 map<pair<ll, ll>, ll> mp, mp1;
-vector<ll> siz(10000);
+ll lok[10000], ans[10000];
+ll t; 
 
 void bfs(ll st) {
     vector<ll> vis(10000);
@@ -17,9 +18,9 @@ void bfs(ll st) {
     while(!q.empty()) {
         ll res = q.front().first, cnt = q.front().second; q.pop();
         vis[res] = 1;
-        if(mp1.count({st, res})) {
-            mp[{st, res}] = cnt; siz[st] --; siz[res] -- ;
-            if(siz[st] == 0) return ;   
+        if(lok[res]) {
+            ans[res] = cnt; t -- ;
+            if(t == 0) return ;   
         }
         string ss = to_string(res); 
         while(ss.size() < 4) ss = '0' + ss;
@@ -58,31 +59,23 @@ void bfs(ll st) {
 }
 
 void solve() {
-    ll t; cin >> t;
-    vector<ll> a(t + 1), b(t + 1); 
+    cin >> t;
+    vector<ll> aa;
     for(ll i = 1; i <= t; i ++ ) {
-        cin >> a[i] >> b[i];
-        g[a[i]].push_back(b[i]); g[b[i]].push_back(a[i]);
-        mp1[{a[i], b[i]}] = 1; mp[{b[i], a[i]}] = 1;
+        ll a, b; cin >> a >> b;
+        ll x = 0, c = 0;
+        for(ll i = 0; i <= 3; i ++ ) {
+            ll a1 = a % 10, b1 = b % 10; c = c == 0 ? 1 : c * 10;
+            a /= 10, b /= 10; 
+            x += c * (a1 - b1 >= 0 ? a1 - b1 : 10 + a1 - b1);
+        }
+        lok[x] = 1;
+        aa.push_back(x);
     }
-    vector<ll> p(10000);
-    iota(p.begin(), p.end(), 0);
-    sort(p.begin(), p.end(), [&](ll x, ll y){
-        if(g[x].size() == g[y].size())
-            return x < y;
-        return g[x].size() > g[y].size();
-    });
-    for(ll i = 0; i <= 9999; i ++ ) {
-        siz[i] = g[i].size();
+    bfs(0);
+    for(ll i : aa) {
+        cout << ans[i] << "\n";
     }
-    for(ll i = 0; i <= 9999; i ++ ) {
-        if(siz[p[i]] > 0){
-            cout << p[i] << "\n"; bfs(p[i]);
-        }  
-    }
-    for(ll i = 1; i <= t; i ++ ) {
-        cout << mp[{a[i], b[i]}] << "\n";
-    } 
 }
 
 signed main(){
