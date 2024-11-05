@@ -1,0 +1,1 @@
+{"name":"Local: F","url":"d:\\vscode\\c++\\nowcoder\\10272\\F.cpp","tests":[{"id":1730375894925,"input":"3\n1 1 5000\n1 1 1\n1 2 10000","output":"4.0000000000\n10141.5852891136\n3.0000000000"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\vscode\\c++\\nowcoder\\10272\\F.cpp","group":"local","local":true}
