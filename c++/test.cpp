@@ -2,54 +2,53 @@
 using namespace std;
 typedef long long ll;
 
-void Solve() {
-	int n, k;
-	cin >> n >> k;
+map<pair<ll, ll>, ll> sg;
 
-	string s;
-	cin >> s;
-
-	auto check = [&](string & s){
-		int cnt = 0;
-		for (int i = 0, cur = 0; i < n; ++i){
-			if (s[i] == s[cur]){
-				cnt ++;
-				continue;
+void SG() {
+	for(ll i = 1; i <= 100; i ++ ) {
+		for(ll j = 1; j <= i; j ++ ) {
+			set<ll> s;
+			for(ll k = (i + 1) / 2; k < i; k ++ ) {
+				s.insert(sg[{k, i - k}]);
 			}
-			if (cnt < k){
-				return i;
+			for(ll k = (j + 1) / 2; k < j; k ++ ) {
+				s.insert(sg[{k, j - k}]);
 			}
-			else if (cnt > k){
-				return i - k;
+			ll cnt = 0;
+			while(s.find(cnt) != s.end()) {
+				cnt ++ ;
 			}
-			else{
-				cur = i;
-				cnt = 1;
-			}
+			sg[{i, j}] = cnt;
 		}
-		return cnt > k ? n - k : n;
-	};
-
-	int p = check(s);
-	if (p == n){
-		cout << n << '\n';
-		return;
 	}
+    cout << "  ";
+    for(ll i = 1; i <= 9; i ++ ) {
+        cout << i << " \n"[i == 9];
+    }
+    for(ll i = 1; i <= 9; i ++ ) {
+        cout << i << " ";
+        for(ll j = 1; j <= 9; j ++ ) {
+            cout << sg[{max(j, i), min(j, i)}] << " \n"[j == 9];
+        }
+    }
+}
 
-	reverse(s.begin(), s.begin() + p);
-	rotate(s.begin(), s.begin() + p, s.end());
-
-	int t = check(s);
-
-	cout << (t == n ? p : -1) << '\n';
+void Solve() {
+	ll n; cin >> n;
+	vector<ll> a(n + 1);
+	for(ll i = 1; i <= n; i ++ ) {
+		cin >> a[i];
+	}
+	
 }
 
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0); cout.tie(0);
-	ll T; cin >> T;
+	SG();
+	ll T = 1; cin >> T;
 	while(T -- ) {
-		Solve();
+		// Solve();
 	}
 	return 0;
 }
