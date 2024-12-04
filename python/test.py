@@ -1,31 +1,22 @@
-import feedparser
-import json
+from decimal import Decimal
 
-# 解析RSS源
-rss_url = "https://podcasts.subsplash.com/v88jzfb/podcast.rss"
-feed = feedparser.parse(rss_url)
+# 输入
+i = input()
+j = input()
+k = input()
 
-# 将解析结果转换为字典然后转换为JSON
-feed_dict = {
-    "feed": {
-        "title": feed.feed.title,
-        "link": feed.feed.get("link", ""),
-        "description": feed.feed.get("description", ""),
-        "episodes": []
-    }
-}
+# 转换为 Decimal 类型
+i = Decimal(i)
+j = Decimal(j)
+k = Decimal(k)
 
-for entry in feed.entries:
-    episode = {
-        "title": entry.title,
-        "link": entry.get("link", ""),
-        "description": entry.get("description", ""),
-        "published": entry.get("published", ""),
-    }
-    feed_dict["feed"]["episodes"].append(episode)
+# 求和
+m = i + j + k
 
-# 转换为JSON字符串
-feed_json = json.dumps(feed_dict, ensure_ascii=False, indent=2)
+# 输出结果
+print(m)
 
-# 打印或保存JSON
-print(feed_json)
+9655867271358165227
+14141275661863579276
+127623412316948855287
+151420555250170599790
