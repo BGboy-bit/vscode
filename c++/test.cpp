@@ -57,6 +57,7 @@ struct BigInt
 				LL x=0; for (j=max(i-17,l);j<=i;++j) x=x*10LL+s[j]-'0';
 				num.push_back(x);
 			}
+			sg[{i, j}] = cnt;
 		}
 	}
 	inline int size(void) const { return num.size(); }
