@@ -12,7 +12,26 @@ const int maxn = 2e5 + 10;
 bool multi = 1;
 
 void Solve() {
-    
+    ll n; cin >> n;
+    vector<pair<ll, ll>> a(2 * n + 1);
+    for(ll i = 1; i <= 2 * n; i ++ ) {
+        cin >> a[i].first; a[i].second = i;
+    }
+    sort(a.begin() + 1, a.end());
+    ll ans = 0, cnt = 0;
+    vector<ll> res(n + 1);
+    for(ll i = 1; i <= 2 * n; i ++ ) {
+        ans += a[i].first;
+        if(cnt == n - 1) continue;
+        // ll x;
+        // if(a[i].second <= n) x = a[i].second;
+        // else x = a[i].second - n;
+        ll x = a[i].second <= n ? a[i].second : a[i].second - n;
+        if(res[x] == 0) {
+            ans -= a[i].first; res[x] = 1; cnt ++ ; continue;
+        }
+    }
+    cout << ans << "\n";
 }
 
 

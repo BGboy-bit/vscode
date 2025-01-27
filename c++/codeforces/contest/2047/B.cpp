@@ -18,77 +18,17 @@ void Solve() {
     for(ll i = 0; i < n; i ++ ) {
         a[s[i] - 'a'] ++ ;
     }
-    ll maxx = 0, maxc, minn = maxn, minc, cnt = 0;
-    for(ll i = 0; i < 25; i ++ ) {
-        if(a[i] == 0) continue;
-        cnt ++ ;
-        if(maxx < a[i]) {
-            maxx = a[i]; maxc = i;
+    ll maxx = 0, maxp, maxc, minn = maxn, minp = 0, minc;
+    for(ll i = 0; i < n; i ++ ) {
+        ll x = s[i] - 'a';
+        if(maxx < a[x] || maxx == a[x] && x > maxc) {
+            maxx = a[x]; maxp = i; maxc = x;
         }
-        if(minn > a[i]) {
-            minn = a[i]; minc = i;
-        }
-    }
-    if(maxc == minc && cnt > 1) {
-        ll ans1 = 1, ans2 = 1, sum = maxx;
-        for(ll i = 0; i < 26; i ++ ) {
-            if(a[i] == 0) continue;
-            if(i == maxc) continue;
-            ans1 *= (sum + 1) * a[i];
-            sum += a[i];
-        }
-        sum = maxx + 1;
-        bool ff = 0;
-        for(ll i = 0; i < 26; i ++ ) {
-            if(a[i] == 0) continue;
-            if(i == maxc) continue;
-            if(!ff) {
-                ans2 *= (sum + 1) * (a[i] - 1);
-                sum += a[i] - 1;
-                ff = 1; 
-                continue;
-            }
-            ans2 *= (sum + 1) * a[i];
-            sum += a[i]; 
-        }
-        if(ans1 > ans2) {
-            for(ll i = 0; i < n; i ++ ) {
-                if(s[i] - 'a' != maxc) {
-                    s[i] = maxc + 'a'; break;
-                }
-            }
-        }
-    } else {
-        ll ans1 = 1, ans2 = 1, sum = maxx;
-        for(ll i = 0; i < 26; i ++ ) {
-            if(a[i] == 0) continue;
-            if(i == maxc) continue;
-            ans1 *= (sum + 1) * a[i];
-            sum += a[i];
-        }
-        sum = maxx + 1;
-        bool ff = 0;
-        for(ll i = 0; i < 26; i ++ ) {
-            if(a[i] == 0) continue;
-            if(i == maxc) continue;
-            if(i == minc && !ff) {
-                ans2 *= (sum + 1) * (a[i] - 1);
-                sum += a[i] - 1;
-                ff = 1; 
-                continue;
-            }
-            ans2 *= (sum + 1) * a[i];
-            sum += a[i]; 
-        }
-        if(ans1 > ans2) {
-            for(ll i = 0; i < n; i ++ ) {
-                if(s[i] - 'a' == minc) {
-                    s[i] = 'a' + maxc;
-                    break;
-                }
-            }
+        if(minn > a[x] || minn == a[x] && x < minc) {
+            minn = a[x]; minp = i; minc = x;
         }
     }
+    s[minp] = s[maxp];
     cout << s << "\n";
 }
 
