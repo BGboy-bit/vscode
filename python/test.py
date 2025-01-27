@@ -31,7 +31,8 @@ def build_lenet():
     model.add(Dense(120, activation='relu'))
     model.add(Dense(84, activation='relu'))
     model.add(Dense(10, activation='softmax'))
-    return model
+    return model 
+    
 
 lenet_model = build_lenet()
 lenet_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
