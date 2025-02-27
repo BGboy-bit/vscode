@@ -9,26 +9,27 @@ typedef array<ll, 2> PII; // vector<PII> a(n + 1);
 const ll inf = 2e18 + 10;
 const int mod = 998244353;
 const int maxn = 2e5 + 10;
-bool multi = 0;
-
-ll maxx = 2e5 + 10;
+bool multi = 1;
 
 void Solve() {
-    ll n;  cin >> n;
-    vector<ll> a(maxx, 0);
+    ll n; cin >> n;
+    vector<ll> a(n + 1);
+    map<ll, ll> mp;
+    ll max11 = 0, max12 = 0, max21 = 0, max22 = 0;
     for(ll i = 1; i <= n; i ++ ) {
-        ll x; cin >> x;
-        a[x] ++ ;
-    }
-    ll ans = 0;
-    for(ll i = 1; i < maxx; i ++ ) {
-        for(ll j = i; j < maxx; j += i) {
-            if(__gcd(j ^ i, j) == i && (i ^ j) < maxx) {
-                ans += a[i ^ j] * a[j];
-            }
+        cin >> a[i];
+        mp[a[i]] ++ ;
+        if(max11 < mp[a[i]]) {
+            max21 = max11; max22 = max12;
+            max11 = mp[a[i]]; max12 = a[i];
+        } else if(max21 < mp[a[i]]) {
+            max21 = mp[a[i]]; max22 = a[i];
         }
     }
-    cout << ans / 2 << "\n";
+    if(max21 == 0) {
+        cout << n / 2 << "\n"; return ;
+    }
+    
 }
 
 
