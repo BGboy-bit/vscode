@@ -1,0 +1,64 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef __int128 i128;
+typedef long long ll;
+typedef double db;
+
+const db PI = acos(-1);
+typedef array<ll, 2> PII; // vector<PII> a(n + 1);
+const ll inf = 2e18 + 10;
+const int mod = 998244353;
+const int maxn = 2e5 + 10;
+bool multi = 1;
+
+void Solve() {
+    ll n, x; cin >> n >> x;
+    ll xx = x;
+    ll cnt = 0, pos = 0;
+    bool ff = 0;
+    vector<ll> a;
+    while(x > 0) {
+        if(x % 2 == 1) {
+            a.push_back(cnt);
+            if(!ff) {
+                pos ++ ;
+            }
+        } else {
+            ff = 1; 
+        }
+        x /= 2; cnt ++ ;
+    }
+    ll cnt1 = min(ll((1 << pos) - 1), n - 2);
+    ll cnt2 = 0;
+    for(ll i = 0; i <= cnt1; i ++ ) {
+        cout << i << " ";
+        cnt2 |= i;
+    }
+    if((cnt2 | (cnt1 + 1)) == xx) {
+        cout << cnt1 + 1;
+    } else {
+        cout << xx;
+    }
+    if(cnt1 + 2 == n) {
+        cout << "\n"; return ;
+    } else {
+        cout << " ";
+    }
+    for(ll i = cnt1 + 2; i < n; i ++ ) {
+        cout << xx << " \n"[i == n - 1];
+    }
+}
+
+
+signed main() {
+    // freopen("test.in","r",stdin);  
+    // freopen("code.out","w",stdout);    
+    ios::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    ll T = 1;
+    if(multi) cin >> T;
+    while(T -- ) {
+        Solve();
+    }
+    return 0;
+}  
