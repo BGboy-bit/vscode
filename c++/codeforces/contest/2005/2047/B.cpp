@@ -9,28 +9,28 @@ typedef array<ll, 2> PII; // vector<PII> a(n + 1);
 const ll inf = 2e18 + 10;
 const int mod = 998244353;
 const int maxn = 2e5 + 10;
-bool multi = 0;
-
-ll maxx = 2e5 + 10;
+bool multi = 1;
 
 void Solve() {
-    ll n;  cin >> n;
-    vector<ll> a(maxx, 0);
-    for(ll i = 1; i <= n; i ++ ) {
-        ll x; cin >> x;
-        a[x] ++ ;
+    ll n; cin >> n;
+    string s; cin >> s;
+    vector<ll> a(26);
+    for(ll i = 0; i < n; i ++ ) {
+        a[s[i] - 'a'] ++ ;
     }
-    ll ans = 0;
-    for(ll i = 1; i < maxx; i ++ ) {
-        for(ll j = i; j < maxx; j += i) {
-            if(__gcd(j ^ i, j) == i && (i ^ j) < maxx) {
-                ans += a[i ^ j] * a[j];
-            }
+    ll maxx = 0, maxp, maxc, minn = maxn, minp = 0, minc;
+    for(ll i = 0; i < n; i ++ ) {
+        ll x = s[i] - 'a';
+        if(maxx < a[x] || maxx == a[x] && x > maxc) {
+            maxx = a[x]; maxp = i; maxc = x;
+        }
+        if(minn > a[x] || minn == a[x] && x < minc) {
+            minn = a[x]; minp = i; minc = x;
         }
     }
-    cout << ans / 2 << "\n";
+    s[minp] = s[maxp];
+    cout << s << "\n";
 }
-
 
 signed main() {
     // freopen("test.in","r",stdin);  
