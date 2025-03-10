@@ -1,1 +1,0 @@
-{"name":"Local: E","url":"d:\\vscode\\c++\\codeforces\\gym\\104076\\E.cpp","tests":[{"id":1729405626238,"input":"1\n4 3 ","output":"Yes"},{"id":1729405765850,"input":"1\n16 5","output":"No"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\vscode\\c++\\codeforces\\gym\\104076\\E.cpp","group":"local","local":true}

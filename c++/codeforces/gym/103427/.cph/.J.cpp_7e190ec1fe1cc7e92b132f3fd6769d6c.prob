@@ -1,1 +1,0 @@
-{"name":"Local: J","url":"d:\\vscode\\c++\\codeforces\\gym\\103427\\J.cpp","tests":[{"id":1730048001804,"input":"6\n1234 2345\n1234 0123\n1234 2267\n1234 3401\n1234 1344\n1234 2468\n","output":"1\n1\n4\n5\n1\n4\n"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\vscode\\c++\\codeforces\\gym\\103427\\J.cpp","group":"local","local":true}
