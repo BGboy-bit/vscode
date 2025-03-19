@@ -1,1 +1,0 @@
-{"name":"Local: test","url":"d:\\vscode\\c++\\test.cpp","tests":[{"id":1729482054128,"input":"1\n60 2 \n96558672713581652271 41412756618635792761 \n27623412316948855287","output":"151420555250170599790"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\vscode\\c++\\test.cpp","group":"local","local":true}

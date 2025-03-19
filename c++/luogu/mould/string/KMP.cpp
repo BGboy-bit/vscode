@@ -20,12 +20,12 @@ void Solve() {
 
     }
 
-    nxt1[0] = -1; 
-        for(ll i = 1, j = -1; i < pat.size(); i ++ ) {
-        while(j != -1 && pat[i] != pat[j + 1]) j = nxt1[j];
-        if(pat[i] == pat[j + 1]) j ++ ;
-        nxt1[i] = j;
-    }
+    // nxt1[0] = -1; 
+    //     for(ll i = 1, j = -1; i < pat.size(); i ++ ) {
+    //     while(j != -1 && pat[i] != pat[j + 1]) j = nxt1[j];
+    //     if(pat[i] == pat[j + 1]) j ++ ;
+    //     nxt1[i] = j;
+    // }
 
 
     for(ll i = 0, j = -1; i < txt.size(); i ++ ) {
