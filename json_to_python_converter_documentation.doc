@@ -1,0 +1,15 @@
+lexer(prog):
+将输入的 JSON 字符串 prog 转换为 token 列表。支持：字符串：必须被双引号包围，内部允许字母和数字。 数字：支持负数、整数、小数及指数部分。标点符号： [ ] { } , :。关键字：true, false, null
+
+make_token_reader(tokens):
+返回三个函数：1._peek(): 返回当前 token 的类型。2._match(expected): 消耗当前 token，并检查其类型是否为 expected，不匹配则报错。3._next(): 返回当前 token 并移动到下一个 token
+
+
+parse(tokens)
+采用递归下降的方法解析 token 列表，生成对应的 Python 值。支持解析：JSON 基本值（字符串、数字、true、false、null）。JSON 数组，转换为 Python list。JSON 对象，转换为 Python dict
+
+test
+test 函数包含多个测试用例，验证转换器对各种 JSON 表达式的处理情况，主要包括：数组测试：测试将 JSON 数组转换为 Python 的列表，并检查类型是否为 list。对象测试：测试将 JSON 对象转换为 Python 的字典，并检查字典内容。字符串测试：测试简单字符串转换，确保去掉引号后输出正确字符串。数字测试：
+分别测试整数和浮点数转换为 Python 中的 int 或 float 类型。布尔值和 null 测试：分别测试 'true'、'false' 和 'null' 的转换，确认返回 True、False 和 None。嵌套结构测试：测试包含嵌套数组和对象的 JSON 字符串，确保解析器能够递归处理嵌套情况。
+每个测试用例都会在控制台输出转换后的结果以及对应的 Python 数据类型，便于手动核对验证。
+
