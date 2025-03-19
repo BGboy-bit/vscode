@@ -2,30 +2,26 @@
 using namespace std;
 typedef long long ll;
 
-const int M = 2e5 + 10;
-
 void Solve() {
     ll n, m; cin >> n >> m;
-    vector<ll> c(m + 1), sum(M);
+    vector<ll> c(m + 1);
+    ll cntt = 0;
     for(ll i = 1; i <= m; i ++ ) {
         cin >> c[i];
-        sum[c[i]] ++ ;
+        if(c[i] == n) cntt ++ ;
     }
     sort(c.begin() + 1, c.end());
-    for(ll i = 1; i < M; i ++ ) {
-        sum[i] += sum[i - 1];
-    }
     ll ans = 0, cnt = 0;
     for(ll i = 1; i <= m; i ++ ) {
         ll res = 0;
         if(n > c[i]) { 
-            res = sum[n - c[i] - 1];
+            res = upper_bound(c.begin() + 1, c.end(), n - c[i] - 1) - c.begin();
             if(n > c[i] * 2) res -- ;
         }
         ans += c[i] * (m - 1 - res);
         cnt += m - 1 - res;
     }
-    ll x = (m - 1) * (sum[n] - sum[n - 1]);
+    ll x = (m - 1) * cntt;
     ans -= cnt / 2 * (n - 1) + x;
     cout << ans * 2 << "\n";
 }
