@@ -1,5 +1,5 @@
 *.exe
 .cph/
-c++/test.cpp
-python/test.py
+**/test.cpp
+**/test.py
 *.docx
