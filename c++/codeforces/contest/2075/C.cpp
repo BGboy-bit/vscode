@@ -15,7 +15,7 @@ void Solve() {
     for(ll i = 1; i <= m; i ++ ) {
         ll res = 0;
         if(n > c[i]) { 
-            res = upper_bound(c.begin() + 1, c.end(), n - c[i] - 1) - c.begin();
+            res = upper_bound(c.begin() + 1, c.end(), n - c[i] - 1) - c.begin() - 1;
             if(n > c[i] * 2) res -- ;
         }
         ans += c[i] * (m - 1 - res);
