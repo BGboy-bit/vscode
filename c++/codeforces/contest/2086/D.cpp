@@ -143,7 +143,41 @@ inline Z C(int a, int b) {
     return fac[a] * invfac[b] * invfac[a - b];
 }
 
-void SINGLE_TEST() {}
+void SINGLE_TEST() {
+    vector<ll> a; a.push_back(0);
+    ll sum = 0;
+    for(ll i = 1; i <= 26; i ++ ) {
+        ll x; cin >> x; sum += x;
+        if(x > 0) a.push_back(x);
+    }
+    ll sum1 = sum / 2;
+    ll n = a.size() - 1; 
+    vector<vector<Z>> dp(n + 1, vector<Z> (sum1 + 1));
+    dp[0][0] = 1;
+    for(ll i = 1; i <= n; i ++ ) {
+        for(ll j = 0; j <= sum1; j ++ ) {
+            
+        }
+        for(ll j = 0; j <= sum1; j ++ ) {
+            dp[i][j] = dp[i - 1][j];
+            if(j - a[i] >= 0) 
+                dp[i][j] += dp[i - 1][j - a[i]];
+        }
+    }
+    // vector<Z> dp(sum + 1);
+    // dp[0] = 1;
+    // for(ll i = 1; i <= n; i ++ ) {
+    //     for(ll j = sum1; j >= a[i]; j -- ) {
+    //        dp[j] = dp[j] + dp[j - a[i]]; 
+    //     }
+    // }
+    Z ans = A(sum / 2, sum / 2) * A((sum + 1) / 2, (sum + 1) / 2) * dp[n][sum1];
+    for(auto i : a) {
+        Z x = A(i, i);
+        ans = ans / A(i, i);
+    }
+    cout << ans << "\n";
+}   
 
 signed main() {
     cin.tie(nullptr)->sync_with_stdio(false);
@@ -152,3 +186,4 @@ signed main() {
     cin >> SAMPLES;
     while (SAMPLES--) SINGLE_TEST();
 }
+
