@@ -1,0 +1,23 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+void Solve() { 
+    ll n; cin >> n;
+    vector<ll> a(n + 1);
+    for(ll i = 1; i <= n; i ++ ) {
+        cin >> a[i];
+    }
+    sort(a.begin() + 1, a.end());
+    cout << a[n] - a[1] << "\n"; return ;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    ll T = 1; cin >> T;
+    while(T -- ) {
+        Solve();
+    }
+    return 0;
+}
