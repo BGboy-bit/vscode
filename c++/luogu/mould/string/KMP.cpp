@@ -1,3 +1,4 @@
+// P3375 【模板】KMP
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -17,7 +18,6 @@ void Solve() {
         while(j != -1 && pat[i] != pat[j + 1]) j = nxt[j];
         if(pat[i] == pat[j + 1]) nxt[i] = nxt[ ++ j] ; 
         if(pat[i + 1] != pat[j + 1] || pat[i] != pat[j]) nxt[i] = j;
-
     }
 
     // nxt1[0] = -1; 
@@ -42,7 +42,7 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
     ll T = 1;
-    cin >> T;
+    // cin >> T;
     while(T --) {
         Solve();
     }

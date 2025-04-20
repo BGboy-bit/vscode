@@ -12,8 +12,8 @@
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "D:/mingw64/bin/g++.exe",
-            "cStandard": "c23",
-            "cppStandard": "c++23",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
             "intelliSenseMode": "${default}"
         }
     ],
