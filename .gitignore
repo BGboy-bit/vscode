@@ -1,4 +1,15 @@
+# 忽略可执行文件
 *.exe
+
+# 忽略.cph目录
 .cph/
+
+# 忽略以 test. 开头的所有文件
 test.*
+
+# 忽略 Word 文档
 *.docx
+
+# 忽略 go 下的 bin 和 pkg 文件夹
+go/bin/
+go/pkg/
