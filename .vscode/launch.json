@@ -9,7 +9,7 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "C/C++: g++.exe build and debug active file",
+      "name": "C/C++: g++.exe build",
       "type": "cppdbg",
       "request": "launch",
       "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
@@ -19,7 +19,7 @@
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
-      "miDebuggerPath": "D:\\mingw64\\bin\\g++.exe",
+      "miDebuggerPath": "D:\\mingw64\\bin\\gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -32,7 +32,7 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "C/C++: g++.exe build active file"
+      "preLaunchTask": "C/C++: g++.exe build"
     }
   ],
   "version": "2.0.0"

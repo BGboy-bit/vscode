@@ -17,10 +17,11 @@ void Solve() {
         ans += max(l[i], r[i]);
         a.push(min(l[i], r[i]));
     }
+    k -- ;
     while(k -- ) {
         ans += a.top(); a.pop();
     }
-    cout << ans << "\n";
+    cout << ans + 1 << "\n";
 }
 
 int main() {
