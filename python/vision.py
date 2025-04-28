@@ -236,12 +236,7 @@ class BoF_TFIDF_Retriever:
         desc = self._sift(img_path)
         if desc is None:
             raise ValueError("无法提取查询图像特征")
-<<<<<<< HEAD:python/vision.py
         
-=======
-
-        # BoF 通路
->>>>>>> 8fa732e4f878b60b15882198478f472ea12e342f:python/test1.py
         hist = self._compute_hist(desc)
         # 计算 BoF 得分，使用 perf_counter 计时
         t0 = perf_counter()
@@ -254,11 +249,7 @@ class BoF_TFIDF_Retriever:
         p, r, ap, pr = self._calculate_metrics_and_pr(img_path, scores_bof, top_idx, top_k)
         self.metrics["bof"].update({"precision@k": p, "recall@k": r, "mAP": ap})
 
-<<<<<<< HEAD:python/vision.py
         # 计算 TF-IDF 得分
-=======
-        # TF-IDF 通路
->>>>>>> 8fa732e4f878b60b15882198478f472ea12e342f:python/test1.py
         t0 = perf_counter()
         tf = hist / (hist.sum() + 1e-8)
         tfidf_q = tf * self.idf
