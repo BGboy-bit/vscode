@@ -28,6 +28,9 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QTabWidget,
+    QHeaderView,
+    QSizePolicy,   
+    QSplitter, 
 )                      
                                
 class BoF_TFIDF_Retriever:
@@ -227,14 +230,18 @@ class BoF_TFIDF_Retriever:
         """
         对单张图像进行检索，返回 BoF 和 TF-IDF 的 Top-k 结果
         :param img_path: 查询图像路径
-        :return: BoF 结果, TF-IDF 结果，每项为 (路径, 相似度)
         """
         if self.codebook is None:
             raise RuntimeError("模型未训练")
         desc = self._sift(img_path)
         if desc is None:
             raise ValueError("无法提取查询图像特征")
+<<<<<<< HEAD:python/vision.py
         
+=======
+
+        # BoF 通路
+>>>>>>> 8fa732e4f878b60b15882198478f472ea12e342f:python/test1.py
         hist = self._compute_hist(desc)
         # 计算 BoF 得分，使用 perf_counter 计时
         t0 = perf_counter()
@@ -247,7 +254,11 @@ class BoF_TFIDF_Retriever:
         p, r, ap, pr = self._calculate_metrics_and_pr(img_path, scores_bof, top_idx, top_k)
         self.metrics["bof"].update({"precision@k": p, "recall@k": r, "mAP": ap})
 
+<<<<<<< HEAD:python/vision.py
         # 计算 TF-IDF 得分
+=======
+        # TF-IDF 通路
+>>>>>>> 8fa732e4f878b60b15882198478f472ea12e342f:python/test1.py
         t0 = perf_counter()
         tf = hist / (hist.sum() + 1e-8)
         tfidf_q = tf * self.idf
@@ -255,12 +266,23 @@ class BoF_TFIDF_Retriever:
         scores_tfidf = self.train_hist_tfidf_norm @ q_norm_tfidf
         top_idx = np.argsort(scores_tfidf)[::-1][:top_k]
         self.metrics["tfidf"]["time"] = perf_counter() - t0
-
         results_tfidf = [(self.train_paths[i], float(scores_tfidf[i])) for i in top_idx]
         p, r, ap, pr = self._calculate_metrics_and_pr(img_path, scores_tfidf, top_idx, top_k)
         self.metrics["tfidf"].update({"precision@k": p, "recall@k": r, "mAP": ap})
 
-        return results_bof, results_tfidf
+        # 线性组合通路
+        fused_scores = self._fuse_scores(scores_bof, scores_tfidf, alpha=0.6)
+        idx_fuse = np.argsort(fused_scores)[::-1][:top_k]
+        results_fuse = [(self.train_paths[i], float(fused_scores[i])) for i in idx_fuse]
+
+        # 同样计算指标（可选：若只关注排序可跳过）
+        p, r, ap, pr = self._calculate_metrics_and_pr(img_path, fused_scores, idx_fuse, top_k)
+        self.metrics.setdefault("fuse", {})
+        self.metrics["fuse"].update({"precision@k": p, "recall@k": r, "mAP": ap,
+                                     "time": max(self.metrics['bof']['time'],
+                                                 self.metrics['tfidf']['time'])})
+
+        return results_bof, results_tfidf, results_fuse
                                                           
     def _avg_pr(self, pr_curves: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray] | None:
         """
@@ -286,6 +308,20 @@ class BoF_TFIDF_Retriever:
              return None                                                        
         averaged_precision = np.mean(interpolated_precisions, axis=0)
         return recall_grid, averaged_precision
+    
+    # 线性组合辅助函数
+    @staticmethod
+    def _fuse_scores(scores_bof: np.ndarray,
+                     scores_tfidf: np.ndarray,
+                     alpha: float = 0.6) -> np.ndarray:
+        """
+        将 BoF 与 TF-IDF 分数归一化后线性组合
+        :param alpha: TF-IDF 权重，取值 0~1
+        """
+        # Min-Max 归一化到 [0,1]
+        s_b = (scores_bof   - scores_bof.min())   / (scores_bof.max()   - scores_bof.min()   + 1e-8)
+        s_t = (scores_tfidf - scores_tfidf.min()) / (scores_tfidf.max() - scores_tfidf.min() + 1e-8)
+        return alpha * s_t + (1 - alpha) * s_b
 
     def evaluate_folder(self, test_dir: str, top_k: int = 10) -> Tuple[dict, Tuple[np.ndarray, np.ndarray] | None, Tuple[np.ndarray, np.ndarray] | None]:
         """
@@ -443,6 +479,7 @@ class BoF_TFIDF_Retriever:
         plt.grid(True)
         plt.tight_layout()
         plt.show()
+
                         
 class ImageMatcherGUI(QWidget):
     """
@@ -454,6 +491,7 @@ class ImageMatcherGUI(QWidget):
         self.query_img: str | None = None
         self.bof_results: List[Tuple[str, float]] = []                                   
         self.tfidf_results: List[Tuple[str, float]] = []                                   
+        self.fuse_results: List[Tuple[str, float]] = []
 
         self._last_avg_metrics = None
         self._last_avg_pr_curves = None
@@ -499,11 +537,15 @@ class ImageMatcherGUI(QWidget):
         img_row.addWidget(self.lbl_query)
         img_row.addWidget(self.lbl_best)
                                                                        
-        self.table = QTableWidget(2, 4)
+        self.table = QTableWidget(3, 4)
         self.table.setHorizontalHeaderLabels(["方法", "Precision@k", "Recall@k", "Time(s)"])
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.table.setFixedHeight(100)
+
+        # 允许用户拖动列宽 / 行高，并随窗口拉伸
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.table.horizontalHeader().setStretchLastSection(True)
                                
         self.tabs = QTabWidget()
@@ -514,8 +556,16 @@ class ImageMatcherGUI(QWidget):
 
         main.addLayout(btn_row)
         main.addLayout(img_row)
-        main.addWidget(self.table)
-        main.addWidget(self.tabs)
+        # 用垂直分隔条装 Table + Tabs，让用户拖动高度
+        v_split = QSplitter(Qt.Vertical)
+        v_split.addWidget(self.table)   # 上：性能表
+        v_split.addWidget(self.tabs)    # 下：结果标签页
+
+        # 初始比例：表格 1，标签页 3，可按需调
+        v_split.setStretchFactor(0, 1)
+        v_split.setStretchFactor(1, 3)
+
+        main.addWidget(v_split)
         self.setLayout(main)
                            
         self._update_metric_table(clear=True)
@@ -587,8 +637,8 @@ class ImageMatcherGUI(QWidget):
         QApplication.processEvents()
 
         try:                                              
-            self.bof_results, self.tfidf_results = self.matcher.query(self.query_img)                     
-            best = self.tfidf_results[0][0] if self.tfidf_results else None
+            self.bof_results, self.tfidf_results, self.fuse_results = self.matcher.query(self.query_img)                     
+            best = self.fuse_results[0][0] if self.fuse_results else None
             if best and os.path.exists(best):
                 pix = QPixmap(best).scaled(350, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 self.lbl_best.setPixmap(pix)
@@ -611,7 +661,7 @@ class ImageMatcherGUI(QWidget):
                 self.table.setItem(i, 2, QTableWidgetItem(""))
                 self.table.setItem(i, 3, QTableWidgetItem(""))
         else:
-            for i, m in enumerate(["BoF", "TF‑IDF"]):
+            for i, m in enumerate(["BoF", "TF-IDF", "Fuse"]):
                 key = "bof" if i == 0 else "tfidf"
                                                                                      
                 metrics = self.matcher.metrics.get(key, {})                      
@@ -623,13 +673,18 @@ class ImageMatcherGUI(QWidget):
         self.table.resizeColumnsToContents()
 
     def _fill_result_texts(self):
-        self.text_bof.clear(); self.text_tf.clear()                     
+        self.text_bof.clear(); self.text_tf.clear()  
+        
         metrics_bof = self.matcher.metrics.get("bof", {})
         metrics_tf = self.matcher.metrics.get("tfidf", {})
         self.text_bof.append(f"--- BoF 檢索結果 ({len(self.bof_results)} items) ---")
         self.text_bof.append(f"Precision@k: {metrics_bof.get('precision@k', 0.0):.3f}, Recall@k: {metrics_bof.get('recall@k', 0.0):.3f}, mAP: {metrics_bof.get('mAP', 0.0):.3f}, Time: {metrics_bof.get('time', 0.0):.3f}s\n")
         for rank, (p, s) in enumerate(self.bof_results, 1):
             self.text_bof.append(f"{rank:>2}. {os.path.basename(p)} (sim={s:.4f})")
+        
+        self.text_tf.append("=== Fuse 结果 ===")
+        for rank, (p, s) in enumerate(self.fuse_results, 1):
+            self.text_tf.append(f"{rank:>2}. {os.path.basename(p)} (sim={s:.4f})")          
         self.text_tf.append(f"--- TF-IDF 檢索結果 ({len(self.tfidf_results)} items) ---")
         self.text_tf.append(f"Precision@k: {metrics_tf.get('precision@k', 0.0):.3f}, Recall@k: {metrics_tf.get('recall@k', 0.0):.3f}, mAP: {metrics_tf.get('mAP', 0.0):.3f}, Time: {metrics_tf.get('time', 0.0):.3f}s\n")
         for rank, (p, s) in enumerate(self.tfidf_results, 1):
