@@ -2,6 +2,7 @@ import sys
 import time
 import os
 import pickle
+import pathlib
 from typing import List, Tuple
 from time import perf_counter
 
@@ -161,8 +162,7 @@ class BoF_TFIDF_Retriever:
         self.train_hist_bof_norm = np.stack(hists_bof)
         tf = np.stack(tf)
         print("Histograms computed.")
-
-                                    
+                        
         # 计算 IDF 并生成 TF-IDF 特征，再归一化                                                            
         df = np.count_nonzero(tf > 0, axis=0)                                                         
         self.idf = np.log((len(tf) + 1) / (df + 1)) + 1.0                   
@@ -236,9 +236,9 @@ class BoF_TFIDF_Retriever:
         desc = self._sift(img_path)
         if desc is None:
             raise ValueError("无法提取查询图像特征")
-
-        # BoF 通路
+        
         hist = self._compute_hist(desc)
+        # 计算 BoF 得分，使用 perf_counter 计时
         t0 = perf_counter()
         q_norm = hist / (np.linalg.norm(hist) + 1e-8)
         scores_bof = self.train_hist_bof_norm @ q_norm
@@ -249,7 +249,7 @@ class BoF_TFIDF_Retriever:
         p, r, ap, pr = self._calculate_metrics_and_pr(img_path, scores_bof, top_idx, top_k)
         self.metrics["bof"].update({"precision@k": p, "recall@k": r, "mAP": ap})
 
-        # TF-IDF 通路
+        # 计算 TF-IDF 得分
         t0 = perf_counter()
         tf = hist / (hist.sum() + 1e-8)
         tfidf_q = tf * self.idf
