@@ -28,9 +28,6 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QTabWidget,
-    QHeaderView,
-    QSizePolicy,   
-    QSplitter, 
 )                      
                                
 class BoF_TFIDF_Retriever:
@@ -69,6 +66,40 @@ class BoF_TFIDF_Retriever:
         sift = cv2.SIFT_create()
         _kp, desc = sift.detectAndCompute(img, None)
         return desc
+    
+    # 缓存训练集
+    def _save_train_cache(self, cache_path: str):
+        pkg = dict(
+            num_clusters=self.num_clusters,
+            codebook=self.codebook,
+            idf=self.idf,
+            train_paths=self.train_paths,
+            train_labels=self.train_labels,
+            hist_bof=self.train_hist_bof_norm,
+            hist_tfidf=self.train_hist_tfidf_norm,
+        )
+        with open(cache_path, "wb") as f:
+            pickle.dump(pkg, f, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"[Cache] training data saved → {cache_path}")
+    
+    # 加载缓存训练集
+    def _load_train_cache(self, cache_path: str) -> bool:
+        if not os.path.exists(cache_path):
+            return False
+        with open(cache_path, "rb") as f:
+            pkg = pickle.load(f)
+        if pkg.get("num_clusters") != self.num_clusters:
+            print("[Cache] num_clusters mismatch, ignore cache.")
+            return False
+
+        self.codebook            = pkg["codebook"]
+        self.idf                 = pkg["idf"]
+        self.train_paths         = pkg["train_paths"]
+        self.train_labels        = pkg["train_labels"]
+        self.train_hist_bof_norm = pkg["hist_bof"]
+        self.train_hist_tfidf_norm = pkg["hist_tfidf"]
+        print(f"[Cache] training data loaded ← {cache_path}")
+        return True
 
     def _compute_hist(self, descriptors: np.ndarray) -> np.ndarray:
         """
@@ -87,7 +118,7 @@ class BoF_TFIDF_Retriever:
         return hist
 
                                       
-    def fit(self, folder: str) -> bool:
+    def fit(self, folder: str, cache_path: str | None = None, rebuild_cache: bool = False) -> bool:
         """
         训练模型：
         1. 遍历文件夹，提取所有图像的 SIFT 描述符
@@ -96,7 +127,13 @@ class BoF_TFIDF_Retriever:
         4. 计算 IDF
         :param folder: 包含子目录（类别）的训练图像根目录
         :return: 是否成功
-        """                                                                                          
+        """        
+
+        # 加载 cache_path
+        if cache_path and not rebuild_cache:
+            if self._load_train_cache(cache_path):
+                return True  
+                                                                                     
         descriptors: List[np.ndarray] = []
         self.train_paths.clear()
         self.train_labels.clear()
@@ -170,6 +207,10 @@ class BoF_TFIDF_Retriever:
         self.train_hist_tfidf_norm = train_hist_tfidf / (np.linalg.norm(train_hist_tfidf, axis=1, keepdims=True) + 1e-8)
         print("TF-IDF computed and normalized.")
         print("Training complete.")
+        
+        # 缓存训练集
+        if cache_path:
+            self._save_train_cache(cache_path)
         return True                                   
 
     def _category_of(self, path: str) -> str:
@@ -230,6 +271,7 @@ class BoF_TFIDF_Retriever:
         """
         对单张图像进行检索，返回 BoF 和 TF-IDF 的 Top-k 结果
         :param img_path: 查询图像路径
+        :return: BoF 结果, TF-IDF 结果，每项为 (路径, 相似度)
         """
         if self.codebook is None:
             raise RuntimeError("模型未训练")
@@ -257,23 +299,12 @@ class BoF_TFIDF_Retriever:
         scores_tfidf = self.train_hist_tfidf_norm @ q_norm_tfidf
         top_idx = np.argsort(scores_tfidf)[::-1][:top_k]
         self.metrics["tfidf"]["time"] = perf_counter() - t0
+
         results_tfidf = [(self.train_paths[i], float(scores_tfidf[i])) for i in top_idx]
         p, r, ap, pr = self._calculate_metrics_and_pr(img_path, scores_tfidf, top_idx, top_k)
         self.metrics["tfidf"].update({"precision@k": p, "recall@k": r, "mAP": ap})
 
-        # 线性组合通路
-        fused_scores = self._fuse_scores(scores_bof, scores_tfidf, alpha=0.6)
-        idx_fuse = np.argsort(fused_scores)[::-1][:top_k]
-        results_fuse = [(self.train_paths[i], float(fused_scores[i])) for i in idx_fuse]
-
-        # 同样计算指标（可选：若只关注排序可跳过）
-        p, r, ap, pr = self._calculate_metrics_and_pr(img_path, fused_scores, idx_fuse, top_k)
-        self.metrics.setdefault("fuse", {})
-        self.metrics["fuse"].update({"precision@k": p, "recall@k": r, "mAP": ap,
-                                     "time": max(self.metrics['bof']['time'],
-                                                 self.metrics['tfidf']['time'])})
-
-        return results_bof, results_tfidf, results_fuse
+        return results_bof, results_tfidf
                                                           
     def _avg_pr(self, pr_curves: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray] | None:
         """
@@ -299,20 +330,6 @@ class BoF_TFIDF_Retriever:
              return None                                                        
         averaged_precision = np.mean(interpolated_precisions, axis=0)
         return recall_grid, averaged_precision
-    
-    # 线性组合辅助函数
-    @staticmethod
-    def _fuse_scores(scores_bof: np.ndarray,
-                     scores_tfidf: np.ndarray,
-                     alpha: float = 0.6) -> np.ndarray:
-        """
-        将 BoF 与 TF-IDF 分数归一化后线性组合
-        :param alpha: TF-IDF 权重，取值 0~1
-        """
-        # Min-Max 归一化到 [0,1]
-        s_b = (scores_bof   - scores_bof.min())   / (scores_bof.max()   - scores_bof.min()   + 1e-8)
-        s_t = (scores_tfidf - scores_tfidf.min()) / (scores_tfidf.max() - scores_tfidf.min() + 1e-8)
-        return alpha * s_t + (1 - alpha) * s_b
 
     def evaluate_folder(self, test_dir: str, top_k: int = 10) -> Tuple[dict, Tuple[np.ndarray, np.ndarray] | None, Tuple[np.ndarray, np.ndarray] | None]:
         """
@@ -452,25 +469,38 @@ class BoF_TFIDF_Retriever:
              
         plt.subplot(1, 2, 2)
 
-        if pr_data:
-            recall_bof, precision_bof = pr_data.get("bof", (None, None))
-            recall_tf, precision_tf = pr_data.get("tfidf", (None, None))
+        def _clean_pr(recall: np.ndarray, precision: np.ndarray):
+            if recall is None or precision is None:
+                return None, None
+            # (0,1) 在开头
+            if recall.size and recall[0] == 0 and precision[0] == 1:
+                recall, precision = recall[1:], precision[1:]
+            # (1,0) 在结尾
+            if recall.size and recall[-1] == 1 and precision[-1] == 0:
+                recall, precision = recall[:-1], precision[:-1]
+            return recall, precision
 
-            if recall_bof is not None and precision_bof is not None:
-                 plt.plot(recall_bof, precision_bof, label="BoF")
-            if recall_tf is not None and precision_tf is not None:
-                 plt.plot(recall_tf, precision_tf, label="TF‑IDF")
+        if pr_data:
+            r_bof, p_bof = pr_data.get("bof", (None, None))
+            r_tf,  p_tf  = pr_data.get("tfidf", (None, None))
+
+            r_bof, p_bof = _clean_pr(r_bof, p_bof)
+            r_tf,  p_tf  = _clean_pr(r_tf,  p_tf)
+
+            if r_bof is not None and p_bof is not None:
+                plt.plot(r_bof, p_bof, label="BoF")
+            if r_tf is not None and p_tf is not None:
+                plt.plot(r_tf, p_tf, label="TF-IDF")
 
         plt.xlabel("Recall")
         plt.ylabel("Precision")
-        plt.title("Precision‑Recall Curve")                   
+        plt.title("Precision-Recall Curve")
         plt.legend()
         plt.ylim([-0.05, 1.05])
         plt.xlim([0, 1.05])
         plt.grid(True)
         plt.tight_layout()
         plt.show()
-
                         
 class ImageMatcherGUI(QWidget):
     """
@@ -482,7 +512,6 @@ class ImageMatcherGUI(QWidget):
         self.query_img: str | None = None
         self.bof_results: List[Tuple[str, float]] = []                                   
         self.tfidf_results: List[Tuple[str, float]] = []                                   
-        self.fuse_results: List[Tuple[str, float]] = []
 
         self._last_avg_metrics = None
         self._last_avg_pr_curves = None
@@ -528,15 +557,11 @@ class ImageMatcherGUI(QWidget):
         img_row.addWidget(self.lbl_query)
         img_row.addWidget(self.lbl_best)
                                                                        
-        self.table = QTableWidget(3, 4)
+        self.table = QTableWidget(2, 4)
         self.table.setHorizontalHeaderLabels(["方法", "Precision@k", "Recall@k", "Time(s)"])
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-        # 允许用户拖动列宽 / 行高，并随窗口拉伸
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.table.setFixedHeight(100)
         self.table.horizontalHeader().setStretchLastSection(True)
                                
         self.tabs = QTabWidget()
@@ -547,16 +572,8 @@ class ImageMatcherGUI(QWidget):
 
         main.addLayout(btn_row)
         main.addLayout(img_row)
-        # 用垂直分隔条装 Table + Tabs，让用户拖动高度
-        v_split = QSplitter(Qt.Vertical)
-        v_split.addWidget(self.table)   # 上：性能表
-        v_split.addWidget(self.tabs)    # 下：结果标签页
-
-        # 初始比例：表格 1，标签页 3，可按需调
-        v_split.setStretchFactor(0, 1)
-        v_split.setStretchFactor(1, 3)
-
-        main.addWidget(v_split)
+        main.addWidget(self.table)
+        main.addWidget(self.tabs)
         self.setLayout(main)
                            
         self._update_metric_table(clear=True)
@@ -579,22 +596,31 @@ class ImageMatcherGUI(QWidget):
         folder = QFileDialog.getExistingDirectory(self, "選擇訓練圖像文件夹")
         if not folder:
             return
+
+        cache_file = os.path.join(folder, f"{os.path.basename(folder)}_train.pkl")
         self.text_bof.setText("訓練中，請稍候……\n")
         self.text_tf.clear()
         self._update_metric_table(clear=True)
-        self.lbl_query.clear(); self.lbl_best.clear()
-        self.query_img = None                            
+        self.lbl_query.clear()
+        self.lbl_best.clear()
+        self.query_img = None
         QApplication.processEvents()
 
         try:
-            if self.matcher.fit(folder):
-                QMessageBox.information(self, "完成", f"已加载 {len(self.matcher.train_paths)} 张有效图像并完成训练")
-                self.text_bof.setText(f"訓練完成，共加载 {len(self.matcher.train_paths)} 张图片。")
+            if self.matcher.fit(folder, cache_path=cache_file):
+                loaded_from_cache = os.path.exists(cache_file)
+                info_msg = ("已從緩存載入訓練數據"
+                            if loaded_from_cache
+                            else f"已加载 {len(self.matcher.train_paths)} 张有效图像并完成训练")
+                QMessageBox.information(self, "完成", info_msg)
+
+                self.text_bof.setText("訓練完成（使用緩存）" if loaded_from_cache
+                                      else f"訓練完成，共加载 {len(self.matcher.train_paths)} 张图片。")
                 self.text_tf.setText("訓練完成。")
-                self.btn_query.setEnabled(True)                      
-                self.btn_match.setEnabled(True)                      
-                self.btn_evaluate.setEnabled(True)                         
-                self.btn_avg_compare.setEnabled(False)                                    
+                self.btn_query.setEnabled(True)
+                self.btn_match.setEnabled(True)
+                self.btn_evaluate.setEnabled(True)
+                self.btn_avg_compare.setEnabled(False)
             else:
                 QMessageBox.critical(self, "错误", "訓練失敗或未找到有效圖片！請檢查數據集和資料夾結構。")
                 self.text_bof.clear()
@@ -605,13 +631,14 @@ class ImageMatcherGUI(QWidget):
                 self.btn_avg_compare.setEnabled(False)
 
         except Exception as e:
-             QMessageBox.critical(self, "訓練錯誤", f"訓練過程中發生錯誤: {e}")
-             self.text_bof.clear()
-             self.text_tf.clear()
-             self.btn_query.setEnabled(False)
-             self.btn_match.setEnabled(False)
-             self.btn_evaluate.setEnabled(False)
-             self.btn_avg_compare.setEnabled(False)
+            QMessageBox.critical(self, "訓練錯誤", f"訓練過程中發生錯誤: {e}")
+            self.text_bof.clear()
+            self.text_tf.clear()
+            self.btn_query.setEnabled(False)
+            self.btn_match.setEnabled(False)
+            self.btn_evaluate.setEnabled(False)
+            self.btn_avg_compare.setEnabled(False)
+
 
     def run_match(self):
         if self.query_img is None:
@@ -628,8 +655,8 @@ class ImageMatcherGUI(QWidget):
         QApplication.processEvents()
 
         try:                                              
-            self.bof_results, self.tfidf_results, self.fuse_results = self.matcher.query(self.query_img)                     
-            best = self.fuse_results[0][0] if self.fuse_results else None
+            self.bof_results, self.tfidf_results = self.matcher.query(self.query_img)                     
+            best = self.tfidf_results[0][0] if self.tfidf_results else None
             if best and os.path.exists(best):
                 pix = QPixmap(best).scaled(350, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 self.lbl_best.setPixmap(pix)
@@ -652,7 +679,7 @@ class ImageMatcherGUI(QWidget):
                 self.table.setItem(i, 2, QTableWidgetItem(""))
                 self.table.setItem(i, 3, QTableWidgetItem(""))
         else:
-            for i, m in enumerate(["BoF", "TF-IDF", "Fuse"]):
+            for i, m in enumerate(["BoF", "TF‑IDF"]):
                 key = "bof" if i == 0 else "tfidf"
                                                                                      
                 metrics = self.matcher.metrics.get(key, {})                      
@@ -664,18 +691,13 @@ class ImageMatcherGUI(QWidget):
         self.table.resizeColumnsToContents()
 
     def _fill_result_texts(self):
-        self.text_bof.clear(); self.text_tf.clear()  
-        
+        self.text_bof.clear(); self.text_tf.clear()                     
         metrics_bof = self.matcher.metrics.get("bof", {})
         metrics_tf = self.matcher.metrics.get("tfidf", {})
         self.text_bof.append(f"--- BoF 檢索結果 ({len(self.bof_results)} items) ---")
         self.text_bof.append(f"Precision@k: {metrics_bof.get('precision@k', 0.0):.3f}, Recall@k: {metrics_bof.get('recall@k', 0.0):.3f}, mAP: {metrics_bof.get('mAP', 0.0):.3f}, Time: {metrics_bof.get('time', 0.0):.3f}s\n")
         for rank, (p, s) in enumerate(self.bof_results, 1):
             self.text_bof.append(f"{rank:>2}. {os.path.basename(p)} (sim={s:.4f})")
-        
-        self.text_tf.append("=== Fuse 结果 ===")
-        for rank, (p, s) in enumerate(self.fuse_results, 1):
-            self.text_tf.append(f"{rank:>2}. {os.path.basename(p)} (sim={s:.4f})")          
         self.text_tf.append(f"--- TF-IDF 檢索結果 ({len(self.tfidf_results)} items) ---")
         self.text_tf.append(f"Precision@k: {metrics_tf.get('precision@k', 0.0):.3f}, Recall@k: {metrics_tf.get('recall@k', 0.0):.3f}, mAP: {metrics_tf.get('mAP', 0.0):.3f}, Time: {metrics_tf.get('time', 0.0):.3f}s\n")
         for rank, (p, s) in enumerate(self.tfidf_results, 1):
