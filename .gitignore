@@ -10,6 +10,8 @@ test.*
 # 忽略 Word 文档
 *.docx
 
-# 忽略 go 下的 bin 和 pkg 文件夹
-go/bin/
+# 忽略 .bin 文件
+*.bin
+
+# 忽略 go 下的 pkg 文件夹
 go/pkg/
