@@ -338,15 +338,15 @@ int main() {
     }
 
     /* 用户输入 */
-    // printf("分配给进程的物理帧数(1~9)：");  scanf("%d",&frameCount);
-    // printf("生成引用串长度(20~50)：");     scanf("%d",&refLen);
-    // getchar();
+    printf("分配给进程的物理帧数(1~9)：");  scanf("%d",&frameCount);
+    printf("生成引用串长度(20~50)：");     scanf("%d",&refLen);
+    getchar();
     printf("选择算法(F/L/C/O 或多选如 F,L,O)：");
     char line[32]; fgets(line, 32, stdin);
     
     /* 引用串生成 */
-    // generatePageSequence();
-    testPageSequence();
+    generatePageSequence();
+    // testPageSequence();
 
     /* 逐算法仿真 */
     const char* names[] = {"FIFO", "LRU", "CLOCK", "OPT"};
