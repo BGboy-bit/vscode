@@ -21,7 +21,7 @@
             "kind": "build",
             "isDefault": true
         },
-        "detail": "编译器: D:/mingw64/bin/g++.exe"
+        "detail": "C/C++: g++.exe build"
     }
 ],
   "version": "2.0.0"
