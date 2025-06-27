@@ -654,7 +654,7 @@ def main():
     db = Database()
     translator = Translator()
     
-    print("欢迎使用 SQL 到 Python 转译器 (支持多行输入)！")
+    print("欢迎使用 SQL 到 Python 转译器！")
     print("请输入 SQL 命令，以分号 (;) 结尾。输入 'exit' 退出。")
     
     sql_buffer = ""
@@ -682,7 +682,7 @@ def main():
                 ast = parser.parse()
                 python_code = translator.translate(ast)
                 
-                print(f"\n[转译后的 Python 代码]:\n---\n{python_code}\n---")
+                # print(f"\n[转译后的 Python 代码]:\n---\n{python_code}\n---")
 
                 local_scope = {'db': db, 'result': None}
                 exec(python_code, local_scope)
